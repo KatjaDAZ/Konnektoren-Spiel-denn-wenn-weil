@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Konnektorenspiel: denn, weil, wenn</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f0f0f0; padding: 20px; }
+    .container { background: white; max-width: 600px; margin: auto; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .question { font-size: 1.2em; margin-bottom: 10px; }
+    .choices button { display: block; margin: 10px 0; padding: 10px; width: 100%; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; }
+    .correct { background-color: #d4edda; color: #155724; }
+    .incorrect { background-color: #f8d7da; color: #721c24; }
+    #feedback { font-weight: bold; margin-top: 10px; }
+    #next-btn, #restart-btn { margin-top: 20px; padding: 10px 20px; font-size: 1em; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="quiz">
+      <div class="question" id="question"></div>
+      <div class="choices" id="choices"></div>
+      <div id="feedback"></div>
+      <button id="next-btn" class="hidden">Nächste Frage</button>
+    </div>
+    <div id="result" class="hidden">
+      <h2>Dein Ergebnis:</h2>
+      <p id="score"></p>
+      <p id="message"></p>
+      <button id="restart-btn">Nochmal spielen</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "Ich kann heute nicht kommen, ___ ich bin krank.", a: ["wenn", "denn", "weil"], correct: 1 },
+      { q: "___ ich Zeit habe, gehe ich ins Kino.", a: ["weil", "denn", "wenn"], correct: 2 },
+      { q: "Ich gehe nicht spazieren, ___ es regnet.", a: ["weil", "wenn", "denn"], correct: 0 },
+      { q: "___ ich müde bin, trinke ich Kaffee.", a: ["wenn", "weil", "denn"], correct: 0 },
+      { q: "Er bleibt zu Hause, ___ er hat Fieber.", a: ["wenn", "denn", "weil"], correct: 1 },
+      { q: "Sie macht die Tür auf, ___ sie hört ein Geräusch.", a: ["wenn", "weil", "denn"], correct: 2 },
+      { q: "Ich trinke Tee, ___ ich Halsschmerzen habe.", a: ["weil", "wenn", "denn"], correct: 0 },
+      { q: "___ ich meine Hausaufgaben mache, bekomme ich keine Probleme.", a: ["denn", "weil", "wenn"], correct: 2 },
+      { q: "Ich esse nichts, ___ ich keinen Hunger habe.", a: ["wenn", "weil", "denn"], correct: 1 },
+      { q: "Sie kommt später, ___ sie hat noch einen Termin.", a: ["weil", "wenn", "denn"], correct: 2 }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById('question');
+    const choicesEl = document.getElementById('choices');
+    const feedbackEl = document.getElementById('feedback');
+    const nextBtn = document.getElementById('next-btn');
+    const resultEl = document.getElementById('result');
+    const quizEl = document.getElementById('quiz');
+    const scoreEl = document.getElementById('score');
+    const messageEl = document.getElementById('message');
+    const restartBtn = document.getElementById('restart-btn');
+
+    function showQuestion() {
+      const q = questions[current];
+      questionEl.textContent = `Frage ${current + 1}: ${q.q}`;
+      choicesEl.innerHTML = '';
+      feedbackEl.textContent = '';
+      nextBtn.classList.add('hidden');
+
+      q.a.forEach((choice, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = choice;
+        btn.onclick = () => checkAnswer(index);
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(index) {
+      const q = questions[current];
+      const buttons = choicesEl.querySelectorAll('button');
+
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.correct) btn.classList.add('correct');
+        else if (i === index) btn.classList.add('incorrect');
+      });
+
+      if (index === q.correct) {
+        score++;
+        feedbackEl.textContent = "✅ Richtig! Gut gemacht!";
+      } else {
+        feedbackEl.textContent = "❌ Leider falsch – versuch’s weiter!";
+      }
+
+      nextBtn.classList.remove('hidden');
+    }
+
+    function showResult() {
+      quizEl.classList.add('hidden');
+      resultEl.classList.remove('hidden');
+      scoreEl.textContent = `Du hast ${score} von 10 Punkten.`;
+
+      if (score >= 8) {
+        messageEl.textContent = "🌟 Großartig! Du beherrschst die Konnektoren schon richtig gut.";
+      } else if (score >= 5) {
+        messageEl.textContent = "😊 Gut gemacht! Mit etwas Übung wirst du noch sicherer.";
+      } else {
+        messageEl.textContent = "💪 Kein Problem – das Thema ist anspruchsvoll. Übung hilft!";
+      }
+    }
+
+    nextBtn.onclick = () => {
+      current++;
+      if (current < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    };
+
+    restartBtn.onclick = () => {
+      current = 0;
+      score = 0;
+      resultEl.classList.add('hidden');
+      quizEl.classList.remove('hidden');
+      showQuestion();
+    };
+
+    showQuestion();
+  </script>
+</body>
+</html>
